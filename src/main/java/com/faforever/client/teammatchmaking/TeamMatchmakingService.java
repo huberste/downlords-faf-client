@@ -203,18 +203,21 @@ public class TeamMatchmakingService {
         i18n.get("teammatchmaking.notification.matchFound.title"),
         i18n.get("teammatchmaking.notification.matchFound.message")
     ));
-    matchmakingQueues.stream()
-        .filter(q -> Objects.equals(q.getQueueName(), message.getQueueName()))
-        .forEach(q -> {
-          if (q.getLeaderboard() != null) {
-            gameService.setMatchedQueueRatingType(q.getLeaderboard().getTechnicalName());
-          } else {
-            gameService.setMatchedQueueRatingType(null);
-          }
-          q.setTimedOutMatchingStatus(MatchingStatus.MATCH_FOUND, Duration.ofSeconds(15), taskScheduler);
-        });
 
-    matchmakingQueues.forEach(q -> q.setJoined(false));
+    JavaFxUtil.runLater(() -> {
+      matchmakingQueues.stream()
+          .filter(q -> Objects.equals(q.getQueueName(), message.getQueueName()))
+          .forEach(q -> {
+            if (q.getLeaderboard() != null) {
+              gameService.setMatchedQueueRatingType(q.getLeaderboard().getTechnicalName());
+            } else {
+              gameService.setMatchedQueueRatingType(null);
+            }
+            q.setTimedOutMatchingStatus(MatchingStatus.MATCH_FOUND, Duration.ofSeconds(15), taskScheduler);
+          });
+
+      matchmakingQueues.forEach(q -> q.setJoined(false));
+    });
   }
 
   @VisibleForTesting
